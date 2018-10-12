@@ -1,0 +1,6 @@
+.vs
+packages/
+ExampleAssembly/bin/*
+ExampleAssembly/obj/*
+SharpMonoInjector/bin/*
+SharpMonoInjector/obj/*
