@@ -10,6 +10,10 @@ Injector: [Download](https://www.unknowncheats.me/forum/downloads.php?do=file&id
 Previously source code was much bigger and more complicated. Credits: Holocull for his better ESP code and visiblity check ; spinhack and overall include in SCP hacking.
 
 
+# Preview
+
+[![v0.2](https://img.youtube.com/vi/uMr2ChYvmh4/0.jpg)](https://www.youtube.com/watch?v=uMr2ChYvmh4)
+
 # Changelog
 
 ### v0.2
