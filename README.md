@@ -1,15 +1,25 @@
 # Update
 
-Everfree 0.1
+Everfree 0.2
 
-Collected from sources on UC.
 
-Credits:
+Internal SCP:Secret Laboratory hack.
+Now with memory hooks!
+Injector: [Download](https://www.unknowncheats.me/forum/downloads.php?do=file&id=25445). Don't forget to update hack included to injector, that hack is v0.1.1
 
-* Holocull for his better ESP code and visiblity check ; spinhack and overall include in SCP hacking.
+Previously source code was much bigger and more complicated. Credits: Holocull for his better ESP code and visiblity check ; spinhack and overall include in SCP hacking.
 
 
 # Changelog
+
+### v0.2
+
+* + code is cleaner
+* + memory hooking
+* > Listen all radio
+* > Norecoil
+* + Reworked MOUSE3 binding
+* something else I forgot already (this update was started monthes ago)
 
 ### v0.1
 
