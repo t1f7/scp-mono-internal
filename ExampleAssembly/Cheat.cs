@@ -68,6 +68,26 @@ namespace Cheat
                 _isSpin = !_isSpin;
             }
 
+            /*if (Input.GetKeyDown(KeyCode.F5))
+            {
+                if (!Memory._bWallhack) Memory.SetWallhack(true);
+            }
+            else if (_isDelDown && Input.GetKeyUp(KeyCode.F5))
+            {
+                _isDelDown = false;
+                if (Memory._bWallhack) Memory.SetWallhack(false);
+            }
+
+            if (Input.GetKeyDown(KeyCode.F6))
+            {
+                if (!Memory._bAllRadio) Memory.SetRadio(true);
+            }
+            else if (_isDelDown && Input.GetKeyUp(KeyCode.F6))
+            {
+                _isDelDown = false;
+                if (Memory._bAllRadio) Memory.SetRadio(false);
+            }*/
+
             if (Input.GetKeyDown(KeyCode.End))
             {
                 if (!_isEndDown) _isEndDown = true;
@@ -77,7 +97,6 @@ namespace Cheat
                 _isEndDown = false;
                 _isBlink = !_isBlink;
             }
-
 
             if (Input.GetKeyDown(KeyCode.Mouse2))
             {
@@ -139,6 +158,14 @@ namespace Cheat
                 {
                     Memory.SetSendPacket(true);
                 }
+                if (Input.GetKeyDown(KeyCode.F5))
+                {
+                    Memory.SetWallhack(!Memory._bWallhack);
+                }
+                if (Input.GetKeyDown(KeyCode.F6))
+                {
+                    Memory.SetRadio(!Memory._bAllRadio);
+                }
             }
 
             /*
@@ -168,7 +195,9 @@ namespace Cheat
 
             GUI.Label(new Rect(10, 130, 500, 30), "Spinbot (Del): " + (_isSpin ? "ON" : "OFF"));
             var ccm = lp.GetComponent<CharacterClassManager>();
-            GUI.Label(new Rect(10, 140, 500, 30), "Stop position sync [G / H]: " + (Memory._bSendPatched ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 150, 500, 30), "Stop position sync [G / H]: " + (Memory._bSendPatched ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 170, 500, 30), "Wallhack [F5]: " + (Memory._bWallhack ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 190, 500, 30), "Listen ALL [F6]: " + (Memory._bAllRadio ? "ON" : "OFF"));
 
             if (_isTrace)
                 if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward),
@@ -234,6 +263,7 @@ namespace Cheat
                     vector.z = main.WorldToScreenPoint(b).z;
                     GUI.color = GetColorById(curClass2);
                     var teamNameById = GetTeamNameById(curClass2);
+                    // this.ccm.klasy[this.ccm.curClass].fullName : string.Empty) ???
                     if (!(main.WorldToScreenPoint(b).z > 0f)) continue;
                     GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y, 100f, 50f),
                         teamNameById + " [" + num + "]");

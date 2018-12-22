@@ -18,6 +18,7 @@ Previously source code was much bigger and more complicated. Credits: Holocull f
 * + memory hooking
 * > Listen all radio
 * > Norecoil
+* > Wallhack
 * + Reworked MOUSE3 binding
 * something else I forgot already (this update was started monthes ago)
 

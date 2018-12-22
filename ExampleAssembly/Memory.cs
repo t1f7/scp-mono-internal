@@ -18,12 +18,17 @@ namespace Cheat
         static private bool _memoryHooked;
         static private bool _isMemory;
         static public bool _bSendPatched;
+        static public bool _bWallhack;
+        static public bool _bAllRadio;
         static private readonly byte[] _pCallBytes = new byte[10];
+        static private readonly byte[] _pWallBytes = new byte[3];
 
         static private IntPtr _hHandle;
         static public IntPtr _pRecoilSync;
         static public IntPtr _pRadio;
         static public IntPtr _pCallCmdSyncData;
+        static public IntPtr _pWallhack;
+        static public IntPtr _pCameraFilter;
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, IntPtr dwSize, out IntPtr lpNumberOfBytesRead);
@@ -62,6 +67,9 @@ namespace Cheat
                 _pRecoilSync = typeof(Recoil).GetMethod("DoRecoil").MethodHandle.GetFunctionPointer();
                 _pRadio = typeof(Radio).GetMethod("Start", BindingFlags.NonPublic |
                                                          BindingFlags.Instance).MethodHandle.GetFunctionPointer();
+                _pWallhack = typeof(Scp939PlayerScript).GetMethod("Init").MethodHandle.GetFunctionPointer();
+                _pCameraFilter = typeof(CameraFilterPack_Edge_Edge_filter).GetMethod("OnRenderImage", BindingFlags.NonPublic |
+                                                         BindingFlags.Instance).MethodHandle.GetFunctionPointer();
 
                 //_isMemory = true;
                 ReadMemory(_pCallCmdSyncData + 0x1d9, _pCallBytes, 10);
@@ -72,6 +80,53 @@ namespace Cheat
 
                 // enable all radio
                 WriteMemory(_pRadio + 0x15F, new byte[] { 0x1 }, sizeof(byte));
+                _bAllRadio = true;
+
+                // enable 939 wallhack
+                ReadMemory(_pWallhack + 0x58, _pWallBytes, 0x3);
+                WriteMemory(_pWallhack + 0x58, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+                WriteMemory(_pCameraFilter + 0x12b, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+            }
+        }
+
+        static public void SetRadio(bool val)
+        {
+            if (!_isMemory)
+            {
+                return;
+            }
+
+            if (val)
+            {
+                _bAllRadio = true;
+                WriteMemory(_pRadio + 0x15F, new byte[] { 0x1 }, sizeof(byte));
+            }
+            else
+            {
+                _bAllRadio = false;
+                WriteMemory(_pRadio + 0x15F, new byte[] { 0x0 }, sizeof(byte));
+            }
+        }
+
+        static public void SetWallhack(bool val)
+        {
+            if (!_isMemory)
+            {
+                return;
+            }
+
+            if (val)
+            {
+                _bWallhack = true;
+                WriteMemory(_pWallhack + 0x58, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+                //WriteMemory(_pCameraFilter + 0x12b, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+                //WriteMemory(_pCameraFilter + 0x16b, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+                WriteMemory(_pCameraFilter + 0x2ab, new byte[] { 0x90, 0x90, 0x90 }, 0x3);
+            }
+            else
+            {
+                _bWallhack = false;
+                WriteMemory(_pWallhack + 0x58, _pWallBytes, 0x3);
             }
         }
 
