@@ -1,303 +1,269 @@
-﻿using GameConsole;
-using System.Collections.Generic;
-using Dissonance.Audio.Playback;
-using Dissonance.Integrations.UNet_HLAPI;
+﻿using System;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using RemoteAdmin;
+using UnityEngine;
+using UnityEngine.Networking;
+// ReSharper disable PossibleNullReferenceException
 
+//using System.Reflection;
 namespace Cheat
 {
-    using UnityEngine;
-    using UnityEngine.Networking;
-
     public class Cheat : NetworkBehaviour
     {
-        private bool isNDown = false;
-        private bool isAltDown = false;
-        private bool isEndDown = false;
-        private bool isDelDown = false;
+        private int _blinkCd;
+        private bool _isAltDown;
+        private bool _isBlink;
+        private bool _isDelDown;
+        private bool _isEndDown;
+        private bool _isNDown;
+        private bool _isNoclip;
+        private bool _isSpeedhack;
 
-        private bool isSpin = false;
-        private bool isTrace = false;
-        private bool isSpeedhack = false;
-        private bool isNoclip = false;
-        private bool isBlink = false;
+        private bool _isSpin;
+        private bool _isTrace;
 
-        private int blinkCd;
-        private float x;
-        private float y;
+        private float _x;
+        private float _y;
 
+        private const KeyCode Key_noRecoil = KeyCode.G;
+        private const KeyCode Key_Trace = KeyCode.LeftAlt;
+        private const KeyCode Key_Spin = KeyCode.Delete;
+
+        private void Start()
+        {
+            Memory.Init();
+        }
+
+        public bool IsValidClass(int cl)
+        {
+            return !(cl == 2 || cl == -1);
+        }
+
+
+        //private System.Random rand = new System.Random(); rand.Next(1, 999);
         public void Update()
         {
             if (Input.GetKeyDown(KeyCode.LeftAlt))
             {
-                if (!isAltDown)
+                if (!_isAltDown)
                 {
-                    isAltDown = true;
-                    isTrace = true;
+                    _isAltDown = true;
+                    _isTrace = true;
                 }
             }
-            else if (isAltDown && Input.GetKeyUp(KeyCode.LeftAlt))
+            else if (_isAltDown && Input.GetKeyUp(KeyCode.LeftAlt))
             {
-                isAltDown = false;
-                isTrace = false;
+                _isAltDown = false;
+                _isTrace = false;
             }
 
             if (Input.GetKeyDown(KeyCode.Delete))
             {
-                if (!isDelDown)
-                {
-                    isDelDown = true;
-                }
+                if (!_isDelDown) _isDelDown = true;
             }
-            else if (isDelDown && Input.GetKeyUp(KeyCode.Delete))
+            else if (_isDelDown && Input.GetKeyUp(KeyCode.Delete))
             {
-                isDelDown = false;
-                isSpin = !isSpin;
+                _isDelDown = false;
+                _isSpin = !_isSpin;
             }
 
             if (Input.GetKeyDown(KeyCode.End))
             {
-                if (!isEndDown)
-                {
-                    isEndDown = true;
-                }
+                if (!_isEndDown) _isEndDown = true;
             }
-            else if (isEndDown && Input.GetKeyUp(KeyCode.End))
+            else if (_isEndDown && Input.GetKeyUp(KeyCode.End))
             {
-                isEndDown = false;
-                isBlink = !isBlink;
+                _isEndDown = false;
+                _isBlink = !_isBlink;
             }
-            
+
 
             if (Input.GetKeyDown(KeyCode.Mouse2))
             {
-                if (!isNDown)
+                if (!_isNDown)
                 {
-                    isNDown = true;
-                    isNoclip = true;
+                    _isNDown = true;
+                    _isNoclip = true;
                 }
             }
-            else if (isNDown && Input.GetKeyUp(KeyCode.Mouse2))
+            else if (_isNDown && Input.GetKeyUp(KeyCode.Mouse2))
             {
-                isNDown = false;
-                isNoclip = false;
+                _isNDown = false;
+                _isNoclip = false;
             }
 
-            GameObject lp = PlayerManager.localPlayer;
-            if (isNoclip && blinkCd < 1)
+            var lp = FindLocalPlayer();//PlayerManager.localPlayer;
+            if (lp != null)
             {
-                if (isBlink)
+                if (_isNoclip && _blinkCd < 1)
                 {
-                    //lp.transform.position += 2.5f * (Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal"));
-                    //blinkCd = 3000;
-                    Vector3 myPos = lp.transform.position;
-                    myPos += 10.0f * Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal");
-                    PlyMovementSync move = lp.GetComponent<PlyMovementSync>();
-                    move.CallCmdSyncData(y, myPos, x);
+                    if (_isBlink)
+                    {
+                        var myPos = lp.transform.position;
+                        myPos += 10.0f * Camera.main.transform.forward *
+                                 (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) +
+                                 Camera.main.transform.right * Input.GetAxis("Horizontal");
+                        var move = lp.GetComponent<PlyMovementSync>();
+                        move.position = myPos;
+                        move.CallCmdSyncData(_y, myPos, _x);
+                    }
+                    else
+                    {
+                        lp.transform.position +=
+                            0.05f * Camera.main.transform.forward *
+                            (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) +
+                            Camera.main.transform.right * Input.GetAxis("Horizontal");
+                    }
                 }
-                else
-                {
-                    lp.transform.position += 0.5f * Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal");
-                }
-            }
 
-            int myhealth = lp.GetComponent<PlayerStats>().health;
+                var myhealth = lp.GetComponent<PlayerStats>().health;
 
-            if (blinkCd > 0) blinkCd -= 1;
+                if (_blinkCd > 0) _blinkCd -= 1;
 
-            if (myhealth > 0)
-            {
+                if (myhealth <= 0) return;
                 // little hacks
-                CharacterClassManager ccm = lp.GetComponent<CharacterClassManager>();
-                if (ccm && !isSpeedhack)
+                var ccm = lp.GetComponent<CharacterClassManager>();
+                if (ccm && !_isSpeedhack)
                 {
-                    for (int j = 0; j < ccm.klasy.Length; j++)
-                    {
-                        ccm.klasy[j].runSpeed *= 1.3f;
-                    }
-                    //lp.GetComponent<Scp096PlayerScript>.ragemultiplier_coodownduration = 5.1f;
-                    isSpeedhack = true;
+                    foreach (var t in ccm.klasy)
+                        t.runSpeed *= 1.3f;
+                    _isSpeedhack = true;
                 }
 
-                // pocket shoot!
-                if (Input.GetKeyDown(KeyCode.H))
-                {
-                    foreach (GameObject gameObject2 in GameObject.FindGameObjectsWithTag("Player"))
-                    {
-                        gameObject2.GetComponent<Scp173PlayerScript>().CallRpcSyncAudio();
-                    }
-                }
                 if (Input.GetKeyDown(KeyCode.G))
                 {
-                    RaycastHit hit;
-                    if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward), out hit))
-                    {
-                        CharacterClassManager component = hit.transform.GetComponent<CharacterClassManager>();
-                        if (component != null)
-                        {
-                            /*Scp106PlayerScript oldman = lp.GetComponent<Scp106PlayerScript>();
-                            if (!oldman) lp.AddComponent<Scp106PlayerScript>();
-                            oldman.CallCmdMovePlayer(hit.transform.gameObject, ServerTime.time);
-                            Hitmarker.Hit(1.5f);*/
-
-                            //lp.GetComponent<PlayerStats>().HurtPlayer(new PlayerStats.HitInfo(40f, base.GetComponent<NicknameSync>().myNick + " (" + base.GetComponent<CharacterClassManager>().SteamId + ")", DamageTypes.Scp106, base.GetComponent<QueryProcessor>().PlayerId), ply);
-                            //ply.GetComponent<PlyMovementSync>().SetPosition(UnityEngine.Vector3.down * 1997f);
-                            //gameObject.GetComponent<PlayerStats>().HurtPlayer(new PlayerStats.HitInfo(1f, "WORLD", "POCKET", base.GetComponent<QueryProcessor>().PlayerId), gameObject);
-                            //gameObject.GetComponent<PlayerStats>().HurtPlayer(new PlayerStats.HitInfo(1f, gameObject.GetComponent<NicknameSync>().myNick + " (" + gameObject.GetComponent<CharacterClassManager>().SteamId + ")", DamageTypes.Scp106, gameObject.GetComponent<RemoteAdmin.QueryProcessor>().PlayerId), hit.transform.gameObject);
-
-                            bool was = false;
-                            Scp939PlayerScript dog = lp.GetComponent<Scp939PlayerScript>();
-                            if (dog && dog.enabled) was = true;
-                            if (!dog) dog = lp.AddComponent<Scp939PlayerScript>();
-                            if (!dog.enabled) dog.enabled = true;
-                            dog.CallCmdShoot(hit.transform.gameObject);
-                            if (!was) dog.enabled = false;
-
-                            lp.GetComponent<Scp173PlayerScript>().CallRpcSyncAudio();
-                            Hitmarker.Hit(1.5f);
-                        } else
-                        {
-                            /*ccm.CallRpcPlaceBlood(lp.transform.position, 1, 2f);
-
-                            lp.GetComponent<FallDamage>().CallRpcDoSound(lp.transform.position, 50);
-                            ccm.CallRpcPlaceBlood(lp.transform.position, 0, UnityEngine.Mathf.Clamp(50 / 30f, 0.8f, 2f));*/
-                            lp.GetComponent<FootstepSync>().CallCmdSyncFoot(true);
-                        }
-                    }
+                    Memory.SetSendPacket(false);
                 }
-                // hack movement
-                /*PlyMovementSync move = lp.GetComponent<PlyMovementSync>();
-                move.isGrounded = true;
-                float rot = lp.transform.rotation.eulerAngles.y;
-                Vector3 pos = lp.transform.position;
-                move.CallCmdSyncData(rot, pos, lp.GetComponent<PlayerInteract>().playerCamera.transform.localRotation.eulerAngles.x);*/
-
-                // hack radio
-                // Radio radio = lp.GetComponent<Radio>();
-
-                // activate wallhack
-                //Camera wallhackCam = lp.GetComponent<Scp049PlayerScript>().plyCam.GetComponent<UnityEngine.Camera>();
-                // Scp939PlayerScript dog = lp.GetComponent<Scp939PlayerScript>();
-                CheckpointKiller shit = lp.GetComponent<CheckpointKiller>();
-                if (shit.enabled) shit.enabled = false;
-                Camera.main.renderingPath = UnityEngine.RenderingPath.VertexLit;// : UnityEngine.RenderingPath.VertexLit);
-                Camera.main.cullingMask = Scp939PlayerScript.instances[0].scpVision;//this.normalVision : this.scpVision);
-                Recoil recoil = lp.GetComponent<Recoil>();
-                if (recoil.enabled) recoil.enabled = false;
-                //dog.visionCamera.gameObject.SetActive(this.iAm939);
-                //dog.visionCamera.fieldOfView = this.plyCam.fieldOfView;
-                //dog.visionCamera.farClipPlane = this.plyCam.farClipPlane;
+                if (Input.GetKeyDown(KeyCode.H))
+                {
+                    Memory.SetSendPacket(true);
+                }
             }
+
+            /*
+             * Reverse it later
+             * var shit = lp.GetComponent<CheckpointKiller>();
+            if (shit.enabled) shit.enabled = false;
+            Camera.main.renderingPath = RenderingPath.VertexLit; // : UnityEngine.RenderingPath.VertexLit);
+            Camera.main.cullingMask =
+                Scp939PlayerScript.instances[0].scpVision; //this.normalVision : this.scpVision);*/
         }
 
         private void OnGUI()
         {
-            GUI.Label(new UnityEngine.Rect(10, 30, 500, 30), "Everfree v0.1");
-            GUI.Label(new UnityEngine.Rect(10, 50, 500, 30), "Debug Trace (ALT): " + (isTrace ? "ON" : "OFF"));
-            GUI.Label(new UnityEngine.Rect(10, 70, 500, 30), "Noclip (MOUSE3): " + (isNoclip ? "ON" : "OFF"));
-            GUI.Label(new UnityEngine.Rect(10, 90, 500, 30), " > NoclipMode [" + (isBlink ? "blink" : "move") + "] (End)");
-            GUI.Label(new UnityEngine.Rect(10, 110, 500, 30), "+Run Speed: " + (isSpeedhack ? "increased" : "off"));
+            GUI.Label(new Rect(10, 30, 500, 30), "Everfree v0.2");
+            GUI.Label(new Rect(10, 50, 500, 30), "Debug Trace (ALT): " + (_isTrace ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 70, 500, 30), "Noclip (MOUSE3): " + (_isNoclip ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 90, 500, 30), " > NoclipMode [" + (_isBlink ? "blink" : "move") + "] (End)");
+            GUI.Label(new Rect(10, 110, 500, 30), "+Run Speed: " + (_isSpeedhack ? "increased" : "off"));
 
-            GameObject lp = PlayerManager.localPlayer;// FindLocalPlayer();
-            PlyMovementSync move = lp.GetComponent<PlyMovementSync>();
-            move.isGrounded = true;
-            //move.CallCmdSyncData(rot, pos, lp.GetComponent<PlayerInteract>().playerCamera.transform.localRotation.eulerAngles.x);
+            // I placed it OnGUI because when onGUI is called then hook is 100% accurate.
+            // If you know a better place feel free to suggest ;)
+            Memory.Hook();
 
-            GUI.Label(new UnityEngine.Rect(10, 130, 500, 30), " > eulerAngles.x: " + lp.GetComponent<PlayerInteract>().playerCamera.transform.localRotation.eulerAngles.x);
-            GUI.Label(new UnityEngine.Rect(10, 150, 500, 30), " > eulerAngles.y: " + lp.transform.rotation.eulerAngles.y.ToString());
-            GUI.Label(new UnityEngine.Rect(10, 170, 500, 30), " > spinbot (Del): " + (isSpin ? "ON" : "OFF"));
-            GUI.Label(new UnityEngine.Rect(10, 190, 500, 30), "PocketAttack (G)");
+            var lp = PlayerManager.localPlayer; // FindLocalPlayer();
+            var move = lp.GetComponent<PlyMovementSync>();
+            move.isGrounded = true; // not sure if this actually helps
 
-            if (isTrace)
-            { 
-                RaycastHit hit;
-                if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward), out hit))
+            GUI.Label(new Rect(10, 130, 500, 30), "Spinbot (Del): " + (_isSpin ? "ON" : "OFF"));
+            var ccm = lp.GetComponent<CharacterClassManager>();
+            GUI.Label(new Rect(10, 140, 500, 30), "Stop position sync [G / H]: " + (Memory._bSendPatched ? "ON" : "OFF"));
+
+            if (_isTrace)
+                if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward),
+                    out var hit))
                 {
-                    GUI.Label(new UnityEngine.Rect(Screen.width / 2, Screen.height / 2, 500, 150), "Tag:" + hit.transform.gameObject.tag + " and name is: " + hit.transform.gameObject.name);
-                    Transform firstParent = hit.transform.gameObject.transform.parent;
-                    if (firstParent) GUI.Label(new UnityEngine.Rect(Screen.width / 2, Screen.height / 2 + 50, 500, 150), "parent tag & name & type: " + firstParent.parent.tag + " & " + firstParent.name + " & " + firstParent.GetType().ToString());
+                    GUI.Label(new Rect(Screen.width / 2f, Screen.height / 2f, 500, 150),
+                        "Tag:" + hit.transform.gameObject.tag + " and name is: " + hit.transform.gameObject.name);
+                    var firstParent = hit.transform.gameObject.transform.parent;
+                    if (firstParent)
+                        GUI.Label(new Rect(Screen.width / 2f, Screen.height / 2f + 50, 500, 150),
+                            "parent tag & name & type: " + firstParent.parent.tag + " & " + firstParent.name + " & " +
+                            firstParent.GetType());
+                    //if (Input.GetKeyDown(KeyCode.Delete))
+                     //   Destroy(hit.transform.gameObject);
                 }
-            }
 
-            if (isNoclip)
+            if (_isNoclip)
             {
-                if (isBlink)
+                if (_isBlink)
                 {
-                    //lp.transform.position += 2.5f * (Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal"));
-                    //blinkCd = 3000;
-                    Vector3 myPos = lp.transform.position;
-                    myPos += 10.0f * Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal");
-                    move.CallCmdSyncData(y, myPos, x);
+                    var myPos = lp.transform.position;
+                    myPos[1] += 15.0f;
+                    move.CallCmdSyncData(_y, myPos, _x);
+                    myPos += 1.3f * Camera.main.transform.forward;
+                    move.CallCmdSyncData(_y, myPos, _x);
+                    myPos[1] -= 10.0f;
+                    move.CallCmdSyncData(_y, myPos, _x);
                 }
                 else
                 {
-                    lp.transform.position += 0.5f * Camera.main.transform.forward * (Input.GetAxis("Vertical") == 0 ? 1.0f : Input.GetAxis("Vertical")) + Camera.main.transform.right * Input.GetAxis("Horizontal");
+                    var myPos = lp.transform.position;
+                    myPos += 50f * Camera.main.transform.forward +
+                             Camera.main.transform.right * Input.GetAxis("Horizontal");
+                    lp.GetComponent<PlyMovementSync>().position = myPos;
                 }
             }
-            if (isSpin)
+
+            if (_isSpin)
             {
-                move.CallCmdSyncData(y, lp.transform.position, x);
-                x += 3.0f;
-                y += 3.0f;
-                if (x > 360.0f) x = -360.0f;
-                if (y > 360.0f) y = -360.0f;
+                move.CallCmdSyncData(_y, lp.transform.position, _x);
+                _x += 3.0f;
+                _y += 3.0f;
+                if (_x > 360.0f) _x = -360.0f;
+                if (_y > 360.0f) _y = -360.0f;
             }
 
-            Camera main = Camera.main;
-            GameObject gameObject = PlayerManager.localPlayer;// FindLocalPlayer();
-            int curClass = gameObject.GetComponent<CharacterClassManager>().curClass;
-            foreach (GameObject gameObject2 in GameObject.FindGameObjectsWithTag("Player"))
-            {
+            var main = Camera.main;
+            var player = PlayerManager.localPlayer; // FindLocalPlayer();
+            var curClass = player.GetComponent<CharacterClassManager>().curClass;
+            foreach (var gameObject2 in GameObject.FindGameObjectsWithTag("Player"))
                 if (gameObject2.GetComponent<NetworkIdentity>())
                 {
-                    NicknameSync component = gameObject2.transform.GetComponent<NicknameSync>();
-                    CharacterClassManager component2 = component.GetComponent<CharacterClassManager>();
-                    if (component != null)
-                    {
-                        Vector3 b = gameObject2.GetComponent<NetworkIdentity>().transform.position;
-                        int curClass2 = component2.curClass;
-                        //if (curClass2 >= 0 && (gameObject != gameObject2))
-                        if (curClass2 > -1)
-                        {
-                            int num = (int)Vector3.Distance(main.transform.position, b);
-                            Vector3 vector;
-                            vector.x = main.WorldToScreenPoint(b).x;
-                            vector.y = main.WorldToScreenPoint(b).y;
-                            vector.z = main.WorldToScreenPoint(b).z;
-                            GUI.color = getColorById(curClass2);
-                            string teamNameById = GetTeamNameById(curClass2);
-                            if (main.WorldToScreenPoint(b).z > 0f)
-                            {
-                                GUI.Label(new Rect(vector.x - 50f, (float)Screen.height - vector.y, 100f, 50f), teamNameById + " [" + num.ToString() + "]");
-                                GUI.color = ((getTeamById(curClass) != getTeamById(curClass2)) ? Color.red : Color.green);
-                                GUI.Label(new Rect(vector.x - 50f, (float)Screen.height - vector.y - 60f, 100f, 50f), component.myNick + "[" + gameObject2.GetComponent<PlayerStats>().health.ToString() + " HP]");
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Tag: Door, name: Door 104
-            foreach (GameObject gameObject2 in GameObject.FindGameObjectsWithTag("Door"))
-            {
-                if (gameObject2.name.Contains("Door 104"))
-                {
-                    GUI.color = Color.white;
-                    Vector3 b = gameObject2.transform.position;
+                    var component = gameObject2.transform.GetComponent<NicknameSync>();
+                    var component2 = component.GetComponent<CharacterClassManager>();
+                    var b = gameObject2.GetComponent<NetworkIdentity>().transform.position;
+                    var curClass2 = component2.curClass;
+                    //if (curClass2 >= 0 && (gameObject != gameObject2))
+                    if (curClass2 <= -1) continue;
+                    var num = (int) Vector3.Distance(main.transform.position, b);
                     Vector3 vector;
                     vector.x = main.WorldToScreenPoint(b).x;
                     vector.y = main.WorldToScreenPoint(b).y;
                     vector.z = main.WorldToScreenPoint(b).z;
-                    if (main.WorldToScreenPoint(b).z > 0f) GUI.Label(new Rect(vector.x + 50f, (float)Screen.height - vector.y, 100f, 50f), gameObject2.name + " " + Vector3.Distance(Camera.main.transform.position, gameObject2.transform.position));
+                    GUI.color = GetColorById(curClass2);
+                    var teamNameById = GetTeamNameById(curClass2);
+                    if (!(main.WorldToScreenPoint(b).z > 0f)) continue;
+                    GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y, 100f, 50f),
+                        teamNameById + " [" + num + "]");
+                    GUI.color = GetTeamById(curClass) != GetTeamById(curClass2) ? Color.red : Color.green;
+                    /*GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y - 60f, 100f, 50f),
+                        component.myNick + "[" + gameObject2.GetComponent<PlayerStats>().health + " HP]");*/
+                    GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y - 60f, 100f, 50f), component.myNick);
                 }
-            }
+
+            // Tag: Door, name: Door 104
+            foreach (var gameObject2 in GameObject.FindGameObjectsWithTag("Door"))
+                if (gameObject2.name.Contains("Door 104"))
+                {
+                    GUI.color = Color.white;
+                    var b = gameObject2.transform.position;
+                    Vector3 vector;
+                    vector.x = main.WorldToScreenPoint(b).x;
+                    vector.y = main.WorldToScreenPoint(b).y;
+                    vector.z = main.WorldToScreenPoint(b).z;
+                    if (main.WorldToScreenPoint(b).z > 0f)
+                        GUI.Label(new Rect(vector.x + 50f, Screen.height - vector.y, 100f, 50f),
+                            gameObject2.name + " " + Vector3.Distance(Camera.main.transform.position,
+                                gameObject2.transform.position));
+                }
 
             // Tag: Pickup
 
             // name contains: Teleport (1) / Teleport (2)!!! \ etc
-
         }
-
-        /*private GameObject FindLocalPlayer()
+        private GameObject FindLocalPlayer()
         {
             GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
             for (int i = 0; i < array.Length; i++)
@@ -308,34 +274,33 @@ namespace Cheat
                 }
             }
             return null;
-        }*/
-
-        private Color getColorById(int curTeam)
+        }
+        private static Color GetColorById(int curTeam)
         {
-            if (curTeam == 0 || curTeam == 3 || curTeam == 5 || curTeam == 10 || curTeam == 9)
+            switch (curTeam)
             {
-                return Color.red;
+                case 0:
+                case 3:
+                case 5:
+                case 10:
+                case 9:
+                    return Color.red;
+                case 1:
+                    return new Color(1f, 0.7f, 0f, 1f);
+                case 8:
+                    return Color.green;
+                case 6:
+                    return Color.white;
+                case 4:
+                case 11:
+                case 12:
+                case 13:
+                    return Color.blue;
+                default: return new Color(1f, 0.7f, 0.3f, 0.5f);
             }
-            if (curTeam == 1)
-            {
-                return new Color(1f, 0.7f, 0f, 1f);
-            }
-            if (curTeam == 8)
-            {
-                return Color.green;
-            }
-            if (curTeam == 6)
-            {
-                return Color.white;
-            }
-            if (curTeam == 4 || curTeam == 11 || curTeam == 12 || curTeam == 13)
-            {
-                return Color.blue;
-            }
-            return new Color(1f, 0.7f, 0.3f, 0.5f);
         }
 
-        private int getTeamById(int iId)
+        private static int GetTeamById(int iId)
         {
             switch (iId)
             {
@@ -351,13 +316,13 @@ namespace Cheat
                 case 16:
                 case 17:
                     return 1;
+                default: return 2;
             }
-            return 2;
         }
 
-        private string GetTeamNameById(int tid)
+        private static string GetTeamNameById(int iId)
         {
-            switch (tid)
+            switch (iId)
             {
                 case -1:
                     return "Server Admin";
@@ -393,8 +358,9 @@ namespace Cheat
                     return "scp-939-53";
                 case 17:
                     return "scp-939-89";
+                default: 
+                    return "undefined (#" + iId + ")";
             }
-            return "undefined (#" + tid.ToString() + ")";
         }
     }
 }
