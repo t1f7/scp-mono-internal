@@ -16,6 +16,11 @@ Previously source code was much bigger and more complicated. Credits: Holocull f
 
 # Changelog
 
+### v0.2.1
+
++ some fixes
++ aimbot (pasta from Beethoven :D )
+
 ### v0.2
 
 * + code is cleaner

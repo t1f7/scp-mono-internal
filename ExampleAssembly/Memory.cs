@@ -79,8 +79,8 @@ namespace Cheat
                 WriteMemory(_pRecoilSync + 0x61, new byte[] { 0x48, 0x39, 0xCF }, 3 * sizeof(byte));
 
                 // enable all radio
-                WriteMemory(_pRadio + 0x15F, new byte[] { 0x1 }, sizeof(byte));
-                _bAllRadio = true;
+                //WriteMemory(_pRadio + 0x15F, new byte[] { 0x1 }, sizeof(byte));
+                //_bAllRadio = true;
 
                 // enable 939 wallhack
                 ReadMemory(_pWallhack + 0x58, _pWallBytes, 0x3);
@@ -91,6 +91,10 @@ namespace Cheat
 
         static public void SetRadio(bool val)
         {
+            _bAllRadio = val;
+            Radio.roundEnded = _bAllRadio;
+            /*
+             * This stands because will be much more options (to hear SCP only or another).
             if (!_isMemory)
             {
                 return;
@@ -105,7 +109,8 @@ namespace Cheat
             {
                 _bAllRadio = false;
                 WriteMemory(_pRadio + 0x15F, new byte[] { 0x0 }, sizeof(byte));
-            }
+            }*/
+
         }
 
         static public void SetWallhack(bool val)

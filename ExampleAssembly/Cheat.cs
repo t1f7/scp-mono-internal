@@ -1,12 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using RemoteAdmin;
+﻿using RemoteAdmin;
 using UnityEngine;
 using UnityEngine.Networking;
-// ReSharper disable PossibleNullReferenceException
 
-//using System.Reflection;
+
 namespace Cheat
 {
     public class Cheat : NetworkBehaviour
@@ -67,26 +63,6 @@ namespace Cheat
                 _isDelDown = false;
                 _isSpin = !_isSpin;
             }
-
-            /*if (Input.GetKeyDown(KeyCode.F5))
-            {
-                if (!Memory._bWallhack) Memory.SetWallhack(true);
-            }
-            else if (_isDelDown && Input.GetKeyUp(KeyCode.F5))
-            {
-                _isDelDown = false;
-                if (Memory._bWallhack) Memory.SetWallhack(false);
-            }
-
-            if (Input.GetKeyDown(KeyCode.F6))
-            {
-                if (!Memory._bAllRadio) Memory.SetRadio(true);
-            }
-            else if (_isDelDown && Input.GetKeyUp(KeyCode.F6))
-            {
-                _isDelDown = false;
-                if (Memory._bAllRadio) Memory.SetRadio(false);
-            }*/
 
             if (Input.GetKeyDown(KeyCode.End))
             {
@@ -190,14 +166,19 @@ namespace Cheat
             Memory.Hook();
 
             var lp = PlayerManager.localPlayer; // FindLocalPlayer();
+            if (!lp) return;
+
             var move = lp.GetComponent<PlyMovementSync>();
             move.isGrounded = true; // not sure if this actually helps
+
+            aimbot.update(lp);
 
             GUI.Label(new Rect(10, 130, 500, 30), "Spinbot (Del): " + (_isSpin ? "ON" : "OFF"));
             var ccm = lp.GetComponent<CharacterClassManager>();
             GUI.Label(new Rect(10, 150, 500, 30), "Stop position sync [G / H]: " + (Memory._bSendPatched ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 170, 500, 30), "Wallhack [F5]: " + (Memory._bWallhack ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 190, 500, 30), "Listen ALL [F6]: " + (Memory._bAllRadio ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 210, 500, 30), "AimbotTarget [C]: -"+ (aimbot.targetNick) +"-");
 
             if (_isTrace)
                 if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward),

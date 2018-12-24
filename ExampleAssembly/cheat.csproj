@@ -83,6 +83,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="aimbot.cs" />
     <Compile Include="Cheat.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Memory.cs" />
