@@ -63,6 +63,10 @@
     <Reference Include="UnityEngine">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory\SCPSL_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory\SCPSL_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SCP Secret Laboratory\SCPSL_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
@@ -83,8 +87,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="aimbot.cs" />
+    <Compile Include="Aimbot.cs" />
     <Compile Include="Cheat.cs" />
+    <Compile Include="ESP.cs" />
     <Compile Include="Loader.cs" />
     <Compile Include="Memory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

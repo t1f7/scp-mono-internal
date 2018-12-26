@@ -40,6 +40,8 @@ namespace Cheat
         //private System.Random rand = new System.Random(); rand.Next(1, 999);
         public void Update()
         {
+            ESP.Update();
+
             if (Input.GetKeyDown(KeyCode.LeftAlt))
             {
                 if (!_isAltDown)
@@ -124,6 +126,9 @@ namespace Cheat
                     foreach (var t in ccm.klasy)
                         t.runSpeed *= 1.3f;
                     _isSpeedhack = true;
+
+                    // testing
+                    PlayerManager.localPlayer.GetComponent<FallDamage>().enabled = false;
                 }
 
                 if (Input.GetKeyDown(KeyCode.G))
@@ -143,19 +148,11 @@ namespace Cheat
                     Memory.SetRadio(!Memory._bAllRadio);
                 }
             }
-
-            /*
-             * Reverse it later
-             * var shit = lp.GetComponent<CheckpointKiller>();
-            if (shit.enabled) shit.enabled = false;
-            Camera.main.renderingPath = RenderingPath.VertexLit; // : UnityEngine.RenderingPath.VertexLit);
-            Camera.main.cullingMask =
-                Scp939PlayerScript.instances[0].scpVision; //this.normalVision : this.scpVision);*/
         }
 
         private void OnGUI()
         {
-            GUI.Label(new Rect(10, 30, 500, 30), "Everfree v0.2");
+            GUI.Label(new Rect(10, 30, 500, 30), "Everfree v0.2.2");
             GUI.Label(new Rect(10, 50, 500, 30), "Debug Trace (ALT): " + (_isTrace ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 70, 500, 30), "Noclip (MOUSE3): " + (_isNoclip ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 90, 500, 30), " > NoclipMode [" + (_isBlink ? "blink" : "move") + "] (End)");
@@ -165,20 +162,22 @@ namespace Cheat
             // If you know a better place feel free to suggest ;)
             Memory.Hook();
 
-            var lp = PlayerManager.localPlayer; // FindLocalPlayer();
+            var lp = PlayerManager.localPlayer;
             if (!lp) return;
 
-            var move = lp.GetComponent<PlyMovementSync>();
-            move.isGrounded = true; // not sure if this actually helps
+            /*move.isGrounded = true; // not sure if this actually helps*/
 
-            aimbot.update(lp);
+            Aimbot.Update(lp);
 
             GUI.Label(new Rect(10, 130, 500, 30), "Spinbot (Del): " + (_isSpin ? "ON" : "OFF"));
             var ccm = lp.GetComponent<CharacterClassManager>();
             GUI.Label(new Rect(10, 150, 500, 30), "Stop position sync [G / H]: " + (Memory._bSendPatched ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 170, 500, 30), "Wallhack [F5]: " + (Memory._bWallhack ? "ON" : "OFF"));
             GUI.Label(new Rect(10, 190, 500, 30), "Listen ALL [F6]: " + (Memory._bAllRadio ? "ON" : "OFF"));
-            GUI.Label(new Rect(10, 210, 500, 30), "AimbotTarget [C]: -"+ (aimbot.targetNick) +"-");
+            GUI.Label(new Rect(10, 210, 500, 30), "AimbotTarget [C - choose, F - attack, T - rage]: -"+ (Aimbot.targetNick) +"-");
+            GUI.Label(new Rect(10, 230, 500, 30), "ESP items [F4]: " + (ESP._bShowDropEsp ? "ON" : "OFF"));
+            GUI.Label(new Rect(10, 250, 500, 30), "ESP locations [F7]: " + (ESP._bShowLocations ? "ON" : "OFF"));
+            
 
             if (_isTrace)
                 if (Physics.Raycast(new Ray(Camera.main.transform.position, Camera.main.transform.forward),
@@ -201,6 +200,7 @@ namespace Cheat
                 {
                     var myPos = lp.transform.position;
                     myPos[1] += 15.0f;
+                    var move = lp.GetComponent<PlyMovementSync>();
                     move.CallCmdSyncData(_y, myPos, _x);
                     myPos += 1.3f * Camera.main.transform.forward;
                     move.CallCmdSyncData(_y, myPos, _x);
@@ -218,6 +218,7 @@ namespace Cheat
 
             if (_isSpin)
             {
+                var move = lp.GetComponent<PlyMovementSync>();
                 move.CallCmdSyncData(_y, lp.transform.position, _x);
                 _x += 3.0f;
                 _y += 3.0f;
@@ -226,54 +227,11 @@ namespace Cheat
             }
 
             var main = Camera.main;
-            var player = PlayerManager.localPlayer; // FindLocalPlayer();
-            var curClass = player.GetComponent<CharacterClassManager>().curClass;
-            foreach (var gameObject2 in GameObject.FindGameObjectsWithTag("Player"))
-                if (gameObject2.GetComponent<NetworkIdentity>())
-                {
-                    var component = gameObject2.transform.GetComponent<NicknameSync>();
-                    var component2 = component.GetComponent<CharacterClassManager>();
-                    var b = gameObject2.GetComponent<NetworkIdentity>().transform.position;
-                    var curClass2 = component2.curClass;
-                    //if (curClass2 >= 0 && (gameObject != gameObject2))
-                    if (curClass2 <= -1) continue;
-                    var num = (int) Vector3.Distance(main.transform.position, b);
-                    Vector3 vector;
-                    vector.x = main.WorldToScreenPoint(b).x;
-                    vector.y = main.WorldToScreenPoint(b).y;
-                    vector.z = main.WorldToScreenPoint(b).z;
-                    GUI.color = GetColorById(curClass2);
-                    var teamNameById = GetTeamNameById(curClass2);
-                    // this.ccm.klasy[this.ccm.curClass].fullName : string.Empty) ???
-                    if (!(main.WorldToScreenPoint(b).z > 0f)) continue;
-                    GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y, 100f, 50f),
-                        teamNameById + " [" + num + "]");
-                    GUI.color = GetTeamById(curClass) != GetTeamById(curClass2) ? Color.red : Color.green;
-                    /*GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y - 60f, 100f, 50f),
-                        component.myNick + "[" + gameObject2.GetComponent<PlayerStats>().health + " HP]");*/
-                    GUI.Label(new Rect(vector.x - 50f, Screen.height - vector.y - 60f, 100f, 50f), component.myNick);
-                }
+            //var player = PlayerManager.localPlayer; // FindLocalPlayer();
 
-            // Tag: Door, name: Door 104
-            foreach (var gameObject2 in GameObject.FindGameObjectsWithTag("Door"))
-                if (gameObject2.name.Contains("Door 104"))
-                {
-                    GUI.color = Color.white;
-                    var b = gameObject2.transform.position;
-                    Vector3 vector;
-                    vector.x = main.WorldToScreenPoint(b).x;
-                    vector.y = main.WorldToScreenPoint(b).y;
-                    vector.z = main.WorldToScreenPoint(b).z;
-                    if (main.WorldToScreenPoint(b).z > 0f)
-                        GUI.Label(new Rect(vector.x + 50f, Screen.height - vector.y, 100f, 50f),
-                            gameObject2.name + " " + Vector3.Distance(Camera.main.transform.position,
-                                gameObject2.transform.position));
-                }
-
-            // Tag: Pickup
-
-            // name contains: Teleport (1) / Teleport (2)!!! \ etc
+            ESP.Render(lp, main, ccm);
         }
+
         private GameObject FindLocalPlayer()
         {
             GameObject[] array = GameObject.FindGameObjectsWithTag("Player");
@@ -285,93 +243,6 @@ namespace Cheat
                 }
             }
             return null;
-        }
-        private static Color GetColorById(int curTeam)
-        {
-            switch (curTeam)
-            {
-                case 0:
-                case 3:
-                case 5:
-                case 10:
-                case 9:
-                    return Color.red;
-                case 1:
-                    return new Color(1f, 0.7f, 0f, 1f);
-                case 8:
-                    return Color.green;
-                case 6:
-                    return Color.white;
-                case 4:
-                case 11:
-                case 12:
-                case 13:
-                    return Color.blue;
-                default: return new Color(1f, 0.7f, 0.3f, 0.5f);
-            }
-        }
-
-        private static int GetTeamById(int iId)
-        {
-            switch (iId)
-            {
-                case 1:
-                case 8:
-                    return 0;
-                case 4:
-                case 6:
-                case 11:
-                case 12:
-                case 13:
-                case 15:
-                case 16:
-                case 17:
-                    return 1;
-                default: return 2;
-            }
-        }
-
-        private static string GetTeamNameById(int iId)
-        {
-            switch (iId)
-            {
-                case -1:
-                    return "Server Admin";
-                case 0:
-                    return "SCP-173";
-                case 1:
-                    return "Class D";
-                case 2:
-                    return "Spectator";
-                case 3:
-                    return "SCP-106";
-                case 4:
-                    return "MTF Scientist";
-                case 5:
-                    return "SCP-049";
-                case 6:
-                    return "Scientist";
-                case 8:
-                    return "Chaos Insurgency";
-                case 9:
-                    return "SCP-096";
-                case 10:
-                    return "SCP-049-2";
-                case 11:
-                    return "MTF Lieutenant";
-                case 12:
-                    return "MTF Commander";
-                case 13:
-                    return "MTF Guard";
-                case 15:
-                    return "facility Guard";
-                case 16:
-                    return "scp-939-53";
-                case 17:
-                    return "scp-939-89";
-                default: 
-                    return "undefined (#" + iId + ")";
-            }
         }
     }
 }
