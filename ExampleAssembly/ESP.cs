@@ -104,6 +104,13 @@ namespace Cheat
                         DisplayLocation("Exit", pocketDimensionTeleport.transform.position);
                     }
                 }
+                foreach (Generator079 generator079 in Object.FindObjectsOfType<Generator079>())
+                {
+                    if (Mathf.Abs(Camera.main.transform.position[2] - generator079.transform.position[2]) > 300) break;
+                   
+                        DisplayLocation("Generator", generator079.transform.position);
+                 
+                }
             }
         }
 
