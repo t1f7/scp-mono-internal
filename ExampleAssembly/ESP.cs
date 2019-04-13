@@ -141,6 +141,9 @@ namespace Cheat
                 case 5:
                 case 10:
                 case 9:
+                case 16:
+                case 17:
+                case 7:
                     return Color.red;
                 case 1:
                     return COLOR_WTF;
@@ -170,8 +173,6 @@ namespace Cheat
                 case 12:
                 case 13:
                 case 15:
-                case 16:
-                case 17:
                     return 1;
                 default: return 2;
             }
