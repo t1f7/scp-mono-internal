@@ -5,7 +5,7 @@ Everfree 0.2
 
 Internal SCP:Secret Laboratory hack.
 Now with memory hooks!
-Injector: [Download](https://www.unknowncheats.me/forum/downloads.php?do=file&id=25445). Don't forget to update hack included to injector, that hack is v0.1.1
+Injector: [github release](https://github.com/chrysls/scp-mono-internal/releases) or [Download](https://www.unknowncheats.me/forum/downloads.php?do=file&id=25445). Don't forget to update hack included to injector, that hack is v0.1.1
 
 Previously source code was much bigger and more complicated. Credits: Holocull for his better ESP code and visiblity check ; spinhack and overall include in SCP hacking.
 
