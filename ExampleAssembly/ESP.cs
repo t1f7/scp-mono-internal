@@ -104,6 +104,13 @@ namespace Cheat
                         DisplayLocation("Exit", pocketDimensionTeleport.transform.position);
                     }
                 }
+                foreach (Generator079 generator079 in Object.FindObjectsOfType<Generator079>())
+                {
+                    if (Mathf.Abs(Camera.main.transform.position[2] - generator079.transform.position[2]) > 300) break;
+                   
+                        DisplayLocation("Generator", generator079.transform.position);
+                 
+                }
             }
         }
 
@@ -134,6 +141,9 @@ namespace Cheat
                 case 5:
                 case 10:
                 case 9:
+                case 16:
+                case 17:
+                case 7:
                     return Color.red;
                 case 1:
                     return COLOR_WTF;
@@ -163,8 +173,6 @@ namespace Cheat
                 case 12:
                 case 13:
                 case 15:
-                case 16:
-                case 17:
                     return 1;
                 default: return 2;
             }
